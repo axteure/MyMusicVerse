@@ -9,7 +9,7 @@ describe("My USD tests", function() {
     async function deployContract() {
         const [owner, otherAccount] = await ethers.getSigners();
         const MyUSD = await ethers.getContractFactory("MyUSD");
-        const myUSD = await MyUSD.deploy(MyUSD);
+        const myUSD = await MyUSD.deploy();
 
         return {myUSD, owner, otherAccount }
     }
@@ -37,11 +37,24 @@ describe("My USD tests", function() {
             expect(recipientBalanceBeforeFaucet).to.equal(0);
 
                 
-            await myUSD.connect(otherAccount).faucet(recipient, 100);
+            await myUSD.connect(otherAccount).faucet(recipient, amount);
             const recipientBalanceAfterFaucet = await myUSD.balanceOf(recipient);
         
             expect(recipientBalanceAfterFaucet).to.equal(amount);
+            
           });
+
+          it('should emit an event', async function () {
+
+            const recipient = otherAccount.address;
+            const amount = 100
+
+            await expect(myUSD.faucet(recipient, amount)).to.emit(myUSD,'MUSDMinted').withArgs(recipient, amount);
+
+            
+          });
+
+
 
     })
 
