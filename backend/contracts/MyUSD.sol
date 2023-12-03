@@ -12,8 +12,11 @@ contract MyUSD is ERC20 {
 
 	// Faucet function to create MUSD tokens
 	function faucet(address _recipient, uint _amount) external {
+		require(_amount >= 1, "The minimum amount is 1.");
+
 		_mint(_recipient, _amount);
 
 		emit MUSDMinted(_recipient, _amount);
 	}
+	
 }
