@@ -14,7 +14,7 @@ describe("Crowdfunding tests", function() {
         const myUSD = await MyUSD.deploy();
 
         const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
-        const crowdfunding = await Crowdfunding.deploy(myUSD, owner, 5000, "Ma campagne");
+        const crowdfunding = await Crowdfunding.deploy(myUSD, owner, 5000, "Ma campagne", 2);
         
         return {myUSD, crowdfunding, owner, otherAccount }
     }
@@ -27,10 +27,8 @@ describe("Crowdfunding tests", function() {
 
         describe('Deployment', function() {
 
-            it("should have the correct MyUSD address", async function () {
-/*
-                const crowdfundingMyUSDAddress = await crowdfunding.myUSD;
-                expect(crowdfundingMyUSDAddress).to.equal(myUSD);*/
+            it("should deploy the contract", async function () {
+                expect(await crowdfunding.tracksQuantity()).to.equal(2);
               });
         })
 

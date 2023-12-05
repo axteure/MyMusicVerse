@@ -11,6 +11,7 @@ contract Crowdfunding {
 	mapping(address => uint32) public contributors;
 
 	address public artistAddress;
+	uint8 public tracksQuantity;
 	uint32 public target;
 	uint32 public totalDeposited;
 	uint256 public startingDate;
@@ -22,7 +23,7 @@ contract Crowdfunding {
 	event WithdrawalCompleted(address artistAddress, uint32 amount);
 	event RefundCompleted(address contributor, uint32 amount);
  
-	constructor(address _MyUSDAddress, address _artistAddress, uint32 _target, string memory _title) {
+	constructor(address _MyUSDAddress, address _artistAddress, uint32 _target, string memory _title, uint8 _tracksQuantity) {
 
 		myUSD = IERC20(_MyUSDAddress);
 
@@ -31,6 +32,7 @@ contract Crowdfunding {
         startingDate = block.timestamp;
         closingDate = block.timestamp + 30 days;
     	title = _title;
+		tracksQuantity = _tracksQuantity;
 	}
 
 	function deposit(uint32 _amount) external {
