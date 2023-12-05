@@ -40,36 +40,47 @@ describe("MyMusicVerse tests", function() {
                 it("should revert if the target is less than the 1000", async () => {
                     const target = 100;
                     const title = "Test";
+                    const tracksQuantity = 2;
             
-                    await expect(myMusicVerse.createCampaign(target, title)).to.be.revertedWith('The minimum target to create a campaign is 1000 MUSD.');
+                    await expect(myMusicVerse.createCampaign(target, title, tracksQuantity)).to.be.revertedWith('The minimum target to create a campaign is 1000 MUSD.');
                 });
 
                 it("should revert if the title is empty", async () => {
                     const target = 5000;
                     const title = "";
-            
-                    await expect(myMusicVerse.createCampaign(target, title)).to.be.revertedWith('The title of the campaign cannot be empty.');
+                    const tracksQuantity = 2;
+
+                    await expect(myMusicVerse.createCampaign(target, title, tracksQuantity)).to.be.revertedWith('The title of the campaign cannot be empty.');
+                });
+
+                it("should revert if the quantity of tracks per album is 0", async () => {
+                    const target = 5000;
+                    const title = "Ma campagne";
+                    const tracksQuantity = 0;
+
+                    await expect(myMusicVerse.createCampaign(target, title, tracksQuantity)).to.be.revertedWith('The quantity of tracks inside this album cannot be 0.');
                 });
 
             })
 
             describe('if the rules are respected', function() {
 
-                let target = 5000;
-                let title = "Ma campagne";
+                const target = 5000;
+                const title = "Ma campagne";
+                const tracksQuantity = 2;
 
                 it("should create a campaign", async () => {
                     const campaignQuantityBeforeCreation = await myMusicVerse.getArtistCampaigns(owner.address);
                     expect(campaignQuantityBeforeCreation.length).to.equal(0);
 
-                    await myMusicVerse.createCampaign(target, title);
+                    await myMusicVerse.createCampaign(target, title, tracksQuantity);
 
                     const campaignQuantityAfterCreation = await myMusicVerse.getArtistCampaigns(owner.address);
                     expect(campaignQuantityAfterCreation.length).to.equal(1);
                 });
 
                 it("should emit an event", async () => {
-                    await expect(myMusicVerse.createCampaign(target, title)).to.emit(myMusicVerse,'CampaignCreated');
+                    await expect(myMusicVerse.createCampaign(target, title, tracksQuantity)).to.emit(myMusicVerse,'CampaignCreated');
                 });
 
             })

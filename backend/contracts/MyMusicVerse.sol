@@ -17,14 +17,15 @@ contract MyMusicVerse {
         myUSD = MyUSD(_myUSDAddress);
     }
 
-    function createCampaign (uint32 _target, string calldata _title) external {
+    function createCampaign (uint32 _target, string calldata _title, uint8 _tracksQuantity) external {
         require(_target >= 1000, "The minimum target to create a campaign is 1000 MUSD.");
         require(bytes(_title).length > 0, "The title of the campaign cannot be empty.");
+        require(_tracksQuantity > 0, "The quantity of tracks inside this album cannot be 0.");
 
         uint256 timestamp = block.timestamp;
 
         address campaignAddress = address(
-            new Crowdfunding{salt: keccak256((abi.encodePacked(timestamp, msg.sender, _target, _title)))}(address(myUSD),msg.sender, _target, _title)
+            new Crowdfunding{salt: keccak256((abi.encodePacked(timestamp, msg.sender, _target, _title)))}(address(myUSD),msg.sender, _target, _title, _tracksQuantity)
         );
 
         artistCampaigns[msg.sender].push(campaignAddress);
