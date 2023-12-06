@@ -10,9 +10,8 @@ contract MyUSD is ERC20 {
 
 	constructor() ERC20('USD Stablecoin', 'MUSD') {} 
 
-	// Faucet function to create MUSD tokens
 	function faucet(address _recipient, uint _amount) external {
-		require(_amount >= 1, "The minimum amount is 1.");
+		require(_amount > 1, "You can mint more than 1.");
 
 		_mint(_recipient, _amount);
 

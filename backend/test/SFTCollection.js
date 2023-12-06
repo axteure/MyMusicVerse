@@ -24,43 +24,67 @@ describe("Crowdfunding tests", function() {
 
         describe('Deployment', function() {
 
-            it("should deploy the contract", async function () {
-                expect(await sftCollection.tracksQuantity()).to.equal(3);
-            });
+            describe('if the rules are respected', function() {
 
-            it("should define an ID for each NFT", async function () {
-                expect(await sftCollection.ids(2)).to.equal(3);
-            });
+                it("should deploy the contract", async function () {
+                    expect(await sftCollection.tracksQuantity()).to.equal(3);
+                });
 
-            it("should have the unique NFT", async function () {
-                expect(await sftCollection.balanceOf(owner.address, 0)).to.equal(1);
-            });
+                it("should define an ID for each NFT", async function () {
+                    expect(await sftCollection.ids(2)).to.equal(3);
+                });
 
+                it("should mint the unique NFT", async function () {
+                    await sftCollection.mintNFTAlbum(owner.address);
+                    expect(await sftCollection.balanceOf(owner.address, 0)).to.equal(1);
+                });
+
+            })
+
+            describe('if the rules are not respected', function() {
+
+                it("should revert if someone (not the artist) want to mint the unique NFT", async function () {
+                    expect(sftCollection.connect(otherAccount).mintNFTAlbum(owner.address)).to.be.reverted;
+                });
+
+            })
 
         })
 
 
-        describe('Mint', function() { 
+        describe('Mint', function() {
 
-            it("should mint parts correctly", async function () {
-            
-                const amountPerNFT = 100;
-                const tracksQuantity = 3
-            
-                await sftCollection.mintParts(owner.address, amountPerNFT);
-            
-                for (let i = 1; i <= tracksQuantity; i++) {
-                  const balance = await sftCollection.balanceOf(owner.address, i);
-                  expect(balance).to.equal(amountPerNFT);
-                }
+            describe('if the rules are respected', function() {
 
-            });
+                it("should mint parts correctly", async function () {
+            
+                    const amountPerNFT = 100;
+                    const tracksQuantity = 3
+                
+                    await sftCollection.mintParts(owner.address, amountPerNFT);
+                
+                    for (let i = 1; i <= tracksQuantity; i++) {
+                      const balance = await sftCollection.balanceOf(owner.address, i);
+                      expect(balance).to.equal(amountPerNFT);
+                    }
+    
+                });
 
+            })
+
+            describe('if the rules are not respected', function() {
+
+                it("should revert if someone (not the crowdfunding contrat) want mint parts", async function () {
+            
+                    const amountPerNFT = 100;
+                
+                    expect(sftCollection.connect(otherAccount).mintParts(owner.address, amountPerNFT)).to.be.reverted;
+    
+                });
+
+            })
 
          })
-
-
-            
 
     })
 

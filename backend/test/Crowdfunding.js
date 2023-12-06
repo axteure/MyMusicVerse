@@ -73,7 +73,7 @@ describe("Crowdfunding tests", function() {
             describe('If the rules are not respected', function() {
 
                 it("should revert if the allowance is not enough", async () => {
-                    await expect(crowdfunding.deposit(500)).to.be.revertedWith('The allowance is not enough do to this transfer.');
+                    await expect(crowdfunding.deposit(500)).to.be.revertedWithCustomError(crowdfunding,'InsufficientAllowance');
                 });
 
                 it("should not allow deposit after closing date", async () => {
@@ -81,11 +81,11 @@ describe("Crowdfunding tests", function() {
                     let afterClosingDate = parseInt(closingDate)+10;
                     await helpers.time.increaseTo(afterClosingDate);
 
-                    await expect(crowdfunding.deposit(100)).to.be.revertedWith('Campaign is closed.');
+                    await expect(crowdfunding.deposit(100)).to.be.revertedWithCustomError(crowdfunding,'CampaignNotOverYet');
                 });
 
                 it('should not allow deposit exceeding campaign limit', async () => {
-                    await expect(crowdfunding.deposit(6000)).to.be.revertedWith('Amount exceeds the campaign limit.');
+                    await expect(crowdfunding.deposit(6000)).to.be.revertedWithCustomError(crowdfunding,'AmountExceedsLimit');
                 });
 
                 it('should not allow total deposit exceeding campaign limit', async () => {
@@ -93,7 +93,7 @@ describe("Crowdfunding tests", function() {
 
                     await crowdfunding.deposit(4800)
 
-                    await expect(crowdfunding.deposit(300)).to.be.revertedWith('Total deposit exceeds the campaign limit.');
+                    await expect(crowdfunding.deposit(300)).to.be.revertedWithCustomError(crowdfunding,'TotalDepositExceedsLimit');
                 });
 
                 it('should not allow total deposit if the campaign is closed', async () => {
@@ -101,7 +101,7 @@ describe("Crowdfunding tests", function() {
 
                     await crowdfunding.deposit(5000)
 
-                    await expect(crowdfunding.deposit(300)).to.be.revertedWith('Campaign is closed.');
+                    await expect(crowdfunding.deposit(300)).to.be.revertedWithCustomError(crowdfunding,'CampaignNotOverYet');
                 });
                 
             })
@@ -134,8 +134,12 @@ describe("Crowdfunding tests", function() {
                 });
 
                 
-                it("should emit an event", async () => {
+                it("should emit an event for the withdrawal", async () => {
                     await expect(crowdfunding.withdraw()).to.emit(crowdfunding,'WithdrawalCompleted').withArgs(owner.address, 5000);;
+                });
+    
+                it("should emit an event for the mint", async () => {
+                    await expect(crowdfunding.withdraw()).to.emit(crowdfunding,'AlbumNFTMinted');
                 });
     
             })
@@ -149,11 +153,11 @@ describe("Crowdfunding tests", function() {
                 });
 
                 it("should revert if the sender is not the artist", async () => {
-                    await expect(crowdfunding.connect(otherAccount).withdraw()).to.be.revertedWith('Only the artist can withdraw the funds.');
+                    await expect(crowdfunding.connect(otherAccount).withdraw()).to.be.revertedWithCustomError(crowdfunding,'OnlyArtistAllowed');
                 });
 
                 it("should revert if the target is not reached", async () => {
-                    await expect(crowdfunding.withdraw()).to.be.revertedWith('The target is not reached.');
+                    await expect(crowdfunding.withdraw()).to.be.revertedWithCustomError(crowdfunding,'TargetNotReached');
                 });
 
             });
@@ -215,13 +219,66 @@ describe("Crowdfunding tests", function() {
                 it("should revert if the target has been reached", async () => {
                     await crowdfunding.deposit(100);
 
-                    await expect(crowdfunding.refund()).to.be.revertedWith('The target has been reached, you can not be refunded.');
+                    await expect(crowdfunding.refund()).to.be.revertedWithCustomError(crowdfunding,'TargetReached');
                 });
 
                 it("should revert if the campaign is not over", async () => {
-                    await expect(crowdfunding.refund()).to.be.revertedWith('The campaign is not over yet, you can not be refunded.');
+                    await expect(crowdfunding.refund()).to.be.revertedWithCustomError(crowdfunding,'CampaignNotOverYet');
                 });
              })
+
+        })
+
+
+
+        describe('Mint parts for contributors', function(){
+
+            describe('If the rules are respected', function() {
+
+                beforeEach(async function () {
+                    await myUSD.faucet(owner.address,5000);
+                    await myUSD.approve(crowdfunding, 5000);
+                    await crowdfunding.deposit(5000);
+
+                    await crowdfunding.withdraw();
+
+                });
+
+                it("should mint parts for contributor", async () => {
+                    let balanceOfContributionBeforeMint = await crowdfunding.contributors(owner)
+                    expect(balanceOfContributionBeforeMint).to.equal(5000);
+
+                    await crowdfunding.mintPartsForInvestor();
+
+                    let balanceOfContributionAfterMint = await crowdfunding.contributors(owner)
+                    expect(balanceOfContributionAfterMint).to.equal(0);
+                });
+
+                
+                it("should emit an event", async () => {
+                    await expect(crowdfunding.mintPartsForInvestor()).to.emit(crowdfunding,'NFTsAttributed');
+                });
+    
+            })
+
+            describe('If the rules are not respected', function() {
+
+                beforeEach(async function () {
+                    await myUSD.faucet(owner.address,5000);
+                    await myUSD.approve(crowdfunding, 5000);
+                    await crowdfunding.deposit(5000);
+                });
+
+                it("should revert if the album NFT is not minted", async () => {
+                    await expect(crowdfunding.mintPartsForInvestor()).to.be.revertedWithCustomError(crowdfunding,'SFTNotDeployed');
+                });
+
+                it("should revert if user is not a contributor or has already minted its parts", async () => {
+                    await crowdfunding.withdraw();
+                    await expect(crowdfunding.connect(otherAccount).mintPartsForInvestor()).to.be.revertedWithCustomError(crowdfunding,'NothingToMint');
+                });
+
+            })
 
         })
 

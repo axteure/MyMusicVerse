@@ -37,7 +37,7 @@ describe("My USD tests", function() {
                 const recipient = otherAccount.address;
                 const amount = 0;
             
-                await expect(myUSD.connect(otherAccount).faucet(recipient, amount)).to.be.revertedWith('The minimum amount is 1.');
+                await expect(myUSD.connect(otherAccount).faucet(recipient, amount)).to.be.revertedWith('You can mint more than 1.');
             });
     
             it('should allow faucet to mint tokens', async function () {
