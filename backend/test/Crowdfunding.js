@@ -160,6 +160,12 @@ describe("Crowdfunding tests", function() {
                     await expect(crowdfunding.withdraw()).to.be.revertedWithCustomError(crowdfunding,'TargetNotReached');
                 });
 
+                it("should revert if the artist try to withdraw twice", async () => {
+                    await crowdfunding.deposit(1000);
+                    await crowdfunding.withdraw();
+                    await expect(crowdfunding.withdraw()).to.be.revertedWithCustomError(crowdfunding,'SFTAlreadyDeployed');
+                });
+
             });
             
         })

@@ -5,7 +5,6 @@ pragma solidity 0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import "./SFTCollection.sol";
 
-
 contract Crowdfunding {
 
 	IERC20 public myUSD;
@@ -41,6 +40,7 @@ contract Crowdfunding {
 	error TargetNotReached();
 	error TargetReached();
 	error SFTNotDeployed();
+	error SFTAlreadyDeployed();
 	error NothingToMint();
  
 	constructor(address _MyUSDAddress, address _artistAddress, uint32 _target, string memory _title, uint8 _tracksQuantity) {
@@ -56,11 +56,6 @@ contract Crowdfunding {
 	}
 
 	function deposit(uint32 _amount) external {
-		//require(block.timestamp < closingDate, "Campaign is closed.");
-		//require(isOpened, "Campaign is closed.");
-    	//require(_amount <= target, "Amount exceeds the campaign limit.");
-		//require(totalDeposited + _amount <= target, "Total deposit exceeds the campaign limit.");
-		//require(myUSD.allowance(msg.sender, address(this)) >= _amount, "The allowance is not enough do to this transfer.");
 
 		if(block.timestamp > closingDate) revert CampaignNotOverYet();
 		if(!isOpened) revert CampaignNotOverYet();
@@ -82,15 +77,10 @@ contract Crowdfunding {
 	}
 
 	function withdraw() external returns(address SFTCollectionAddress) {
-		//require(msg.sender == artistAddress, "Only the artist can withdraw the funds.");
-		//require(totalDeposited >= target, "The target is not reached.");
 
+		if(sftDeployed) revert SFTAlreadyDeployed();
 		if(msg.sender != artistAddress) revert OnlyArtistAllowed();
 		if(totalDeposited < target) revert TargetNotReached();
-
-		myUSD.transfer(artistAddress, totalDeposited);
-		
-		emit WithdrawalCompleted(artistAddress, totalDeposited);
 
 		bytes memory collectionBytecode = type(SFTCollection).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(tracksQuantity));
@@ -107,12 +97,13 @@ contract Crowdfunding {
         SFTCollection(AlbumCollectionAddress).mintNFTAlbum(artistAddress);
 		sftDeployed = true;
 
+		myUSD.transfer(artistAddress, totalDeposited);
+		
+		emit WithdrawalCompleted(artistAddress, totalDeposited);
 		emit AlbumNFTMinted(SFTCollectionAddress, artistAddress);
 	}
 
 	function refund() external {
-		//require(totalDeposited < target, "The target has been reached, you can not be refunded.");
-		//require(block.timestamp > closingDate, "The campaign is not over yet, you can not be refunded.");
 
 		if(totalDeposited >= target) revert TargetReached();
 		if(block.timestamp <= closingDate) revert CampaignNotOverYet();
