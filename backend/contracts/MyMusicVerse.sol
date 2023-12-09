@@ -11,7 +11,7 @@ contract MyMusicVerse {
 
     mapping(address => address[]) public artistCampaigns;
 
-    event CampaignCreated(address campaignAddress, string title);
+    event CampaignCreated(address campaignAddress, string title, uint32 target, uint8 tracksQuantity);
 
     constructor(address _myUSDAddress) {
         myUSD = MyUSD(_myUSDAddress);
@@ -30,7 +30,7 @@ contract MyMusicVerse {
 
         artistCampaigns[msg.sender].push(campaignAddress);
 
-        emit CampaignCreated(campaignAddress, _title);
+        emit CampaignCreated(campaignAddress, _title, _target, _tracksQuantity);
     }
 
     function getArtistCampaigns(address artistAddress) external view returns (address[] memory) {
