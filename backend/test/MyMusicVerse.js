@@ -24,17 +24,6 @@ describe("MyMusicVerse tests", function() {
             ({myUSD, myMusicVerse, owner, otherAccount} = await loadFixture(deployContract));
         });
 
-        describe('Deployment', function() {
-
-            it("should deploy the contract", async () => {
-/*
-                const contractAddress = myMusicVerse.address;
-                assert.notEqual(contractAddress, "0x0000000000000000000000000000000000000000", "Contract not deployed");
-                */
-            });
-
-        })
-
         describe('Create a campaign', function() {
 
             describe('if the rules are not respected', function() {
