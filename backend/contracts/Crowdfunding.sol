@@ -41,6 +41,7 @@ contract Crowdfunding {
 	error TargetNotReached();
 	error TargetReached();
 	error SFTNotDeployed();
+	error SFTAlreadyDeployed();
 	error NothingToMint();
  
 	constructor(address _MyUSDAddress, address _artistAddress, uint32 _target, string memory _title, uint8 _tracksQuantity) {
@@ -85,12 +86,9 @@ contract Crowdfunding {
 		//require(msg.sender == artistAddress, "Only the artist can withdraw the funds.");
 		//require(totalDeposited >= target, "The target is not reached.");
 
+		if(sftDeployed) revert SFTAlreadyDeployed();
 		if(msg.sender != artistAddress) revert OnlyArtistAllowed();
 		if(totalDeposited < target) revert TargetNotReached();
-
-		myUSD.transfer(artistAddress, totalDeposited);
-		
-		emit WithdrawalCompleted(artistAddress, totalDeposited);
 
 		bytes memory collectionBytecode = type(SFTCollection).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(tracksQuantity));
@@ -107,6 +105,9 @@ contract Crowdfunding {
         SFTCollection(AlbumCollectionAddress).mintNFTAlbum(artistAddress);
 		sftDeployed = true;
 
+		myUSD.transfer(artistAddress, totalDeposited);
+		
+		emit WithdrawalCompleted(artistAddress, totalDeposited);
 		emit AlbumNFTMinted(SFTCollectionAddress, artistAddress);
 	}
 
