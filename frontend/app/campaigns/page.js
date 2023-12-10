@@ -15,6 +15,8 @@ import { prepareWriteContract, writeContract, watchContractEvent, getContractEve
 import { MyMusicVerseABI, MyMusicVerseContractAddress } from '@/contracts/MyMusicVerse';
 import { reactStrictMode } from '@/next.config';
 
+import { toast } from 'react-toastify';
+
 
 export default function Home() {
 
@@ -39,7 +41,7 @@ export default function Home() {
       console.log(campaignsData);
       setCampaigns(campaignsData);
     } catch (error) {
-      toast("Problem!");
+      toast.error("Problem!");
       console.error(error);
     }
   };
@@ -51,6 +53,9 @@ export default function Home() {
 
   return (
     <>
+
+      <Link href='/campaigns/create'><button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Create Campaign</button></Link>
+
 
       <div className="grid grid-cols-4 gap-4">
 

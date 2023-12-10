@@ -41,12 +41,12 @@ export default function CreateCampaign() {
             args: [target, title, tracksQuantity],
             })
             const { hash } = await writeContract(request)
-            toast("Wow so easy!");
+            toast.success("Campaign created!");
 
             
         } catch (error) {
-            toast("Problem!");
-            console.log(err)
+            toast.error("Problem!");
+            console.log(error)
         }
     }
 

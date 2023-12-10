@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function Toast(){
   return (
     <div>
-      <ToastContainer />
+      <ToastContainer position="bottom-left" />
     </div>
   );
 }
