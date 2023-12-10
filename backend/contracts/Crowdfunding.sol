@@ -9,7 +9,6 @@ pragma solidity 0.8.20;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import "./SFTCollection.sol";
 
-
 contract Crowdfunding {
 
     /// @dev Instance of the MyUSD ERC20 token contract.
@@ -77,6 +76,7 @@ contract Crowdfunding {
 	error TargetNotReached();
 	error TargetReached();
 	error SFTNotDeployed();
+	error SFTAlreadyDeployed();
 	error NothingToMint();
 
 	// Constructor to initialize the Crowdfunding contract.
@@ -104,6 +104,7 @@ contract Crowdfunding {
 	/// updates the total deposited amount, increments the contributor's balance, and closes the campaign if the total deposited amount reaches the target.
 	/// Emits a DepositReceived event.
 	function deposit(uint32 _amount) external {
+  
 		if(block.timestamp > closingDate) revert CampaignNotOverYet();
 		if(!isOpened) revert CampaignNotOverYet();
     	if(_amount > target) revert AmountExceedsLimit();
@@ -134,18 +135,13 @@ contract Crowdfunding {
 	/// returns SFTCollectionAddress The address of the newly deployed SFTCollection contract.
 	function withdraw() external returns(address SFTCollectionAddress) {
 
+		if(sftDeployed) revert SFTAlreadyDeployed();
 		if(msg.sender != artistAddress) revert OnlyArtistAllowed();
 		if(totalDeposited < target) revert TargetNotReached();
-
-    	// Transfer the total deposited amount to the artist's address.
-		myUSD.transfer(artistAddress, totalDeposited);
-		
-		// Emit a WithdrawalCompleted event.
-		emit WithdrawalCompleted(artistAddress, totalDeposited);
-
-	    // Deploy a new SFTCollection contract using create2 opcode with a unique salt.
-		bytes memory collectionBytecode = type(SFTCollection).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(tracksQuantity));
+    
+    // Deploy a new SFTCollection contract using create2 opcode with a unique salt.
+    bytes memory collectionBytecode = type(SFTCollection).creationCode;
+    bytes32 salt = keccak256(abi.encodePacked(tracksQuantity));
 		bytes memory deployData = abi.encodePacked(collectionBytecode, abi.encode(tracksQuantity));
 
 		assembly {
@@ -157,8 +153,14 @@ contract Crowdfunding {
 		
 		// Set AlbumCollectionAddress and mint NFTs for the artist.
 		AlbumCollectionAddress = SFTCollectionAddress;
-        SFTCollection(AlbumCollectionAddress).mintNFTAlbum(artistAddress);
+    SFTCollection(AlbumCollectionAddress).mintNFTAlbum(artistAddress);
 		sftDeployed = true;
+
+    // Transfer the total deposited amount to the artist's address.
+		myUSD.transfer(artistAddress, totalDeposited);
+		
+		// Emit a WithdrawalCompleted event.
+		emit WithdrawalCompleted(artistAddress, totalDeposited);
 
 		// Emit an AlbumNFTMinted event.
 		emit AlbumNFTMinted(SFTCollectionAddress, artistAddress);

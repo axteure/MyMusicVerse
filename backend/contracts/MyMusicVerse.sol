@@ -19,8 +19,9 @@ contract MyMusicVerse {
 
     /// @dev Emitted when a new crowdfunding campaign is created.
     /// @param campaignAddress The address of the newly created crowdfunding campaign.
-    /// @param title The title of the music project associated with the campaign.
-    event CampaignCreated(address campaignAddress, string title);
+    /// @param target The funding target in MUSD for the campaign.
+    /// @param tracksQuantity The number of tracks inside the album associated with the campaign.
+    event CampaignCreated(address campaignAddress, string title, uint32 target, uint8 tracksQuantity);
 
     /// @dev Constructor to initialize the MyMusicVerse contract with the address of the MyUSD contract.
     /// @param _myUSDAddress The address of the MyUSD contract.
@@ -49,7 +50,7 @@ contract MyMusicVerse {
         artistCampaigns[msg.sender].push(campaignAddress);
 
         // Emit an event to signify the creation of a new campaign.
-        emit CampaignCreated(campaignAddress, _title);
+        emit CampaignCreated(campaignAddress, _title, _target, _tracksQuantity);
     }
 
     /// @notice Retrieves the list of campaign addresses created by a specific artist.
