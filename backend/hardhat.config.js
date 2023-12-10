@@ -16,11 +16,7 @@ module.exports = {
       accounts: [`0x${PRIVATE_KEY}`],
       chainId: 11155111,
       blockConfirmations: 6,
-    },
-    localhost : {
-      url: "http://127.0.0.1/8545",
-      chainId: 31337
-    },
+    }
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,

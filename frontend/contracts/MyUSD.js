@@ -351,5 +351,5 @@ export const MyUSDABI = [
   }
 ]
 
-//export const MyUSDContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-export const MyUSDContractAddress = "0xBC2A225FE206798B7CB03056F1c8eb49EE22b51E"
+export const MyUSDContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+//export const MyUSDContractAddress = "0xBC2A225FE206798B7CB03056F1c8eb49EE22b51E"
