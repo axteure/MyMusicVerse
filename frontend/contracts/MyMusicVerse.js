@@ -109,4 +109,5 @@ export const MyMusicVerseABI = [
   }
 ]
 
-export const MyMusicVerseContractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+//export const MyMusicVerseContractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+export const MyMusicVerseContractAddress = "0x6c6E9C979741d25e6353Dc4057EB5D7978E05AB7"
