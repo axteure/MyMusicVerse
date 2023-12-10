@@ -34,6 +34,14 @@ describe("Crowdfunding tests", function() {
                     expect(await sftCollection.ids(2)).to.equal(3);
                 });
 
+            })
+
+        })
+
+        describe('Mint NFT Album', function() {
+
+            describe('if the rules are respected', function() {
+
                 it("should mint the unique NFT", async function () {
                     await sftCollection.mintNFTAlbum(owner.address);
                     expect(await sftCollection.balanceOf(owner.address, 0)).to.equal(1);
@@ -43,8 +51,8 @@ describe("Crowdfunding tests", function() {
 
             describe('if the rules are not respected', function() {
 
-                it("should revert if someone (not the artist) want to mint the unique NFT", async function () {
-                    expect(sftCollection.connect(otherAccount).mintNFTAlbum(owner.address)).to.be.reverted;
+                it("should revert if someone (not the crowdfunding contract) want to mint the unique NFT", async function () {
+                    await expect(sftCollection.connect(otherAccount).mintNFTAlbum(owner.address)).to.be.revertedWithCustomError(sftCollection,'OwnableUnauthorizedAccount');
                 });
 
             })
@@ -52,7 +60,7 @@ describe("Crowdfunding tests", function() {
         })
 
 
-        describe('Mint', function() {
+        describe('Mint NFT parts', function() {
 
             describe('if the rules are respected', function() {
 
@@ -77,8 +85,8 @@ describe("Crowdfunding tests", function() {
                 it("should revert if someone (not the crowdfunding contrat) want mint parts", async function () {
             
                     const amountPerNFT = 100;
-                
-                    expect(sftCollection.connect(otherAccount).mintParts(owner.address, amountPerNFT)).to.be.reverted;
+                    await expect(sftCollection.connect(otherAccount).mintParts(owner.address, amountPerNFT)).to.be.revertedWithCustomError(sftCollection,'OwnableUnauthorizedAccount');
+
     
                 });
 
